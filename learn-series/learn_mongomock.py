@@ -11,9 +11,8 @@ MongoDB的情况下模拟database, collection的行为。
 import pymongo
 import mongomock
 
-#--- 一个使用mongomock进行测试的例子 ---
 
-
+# --- 一个使用mongomock进行测试的例子 ---
 def increase_votes(col):
     col.update({}, {"$inc": {"votes": 1}}, multi=True)
 
@@ -35,11 +34,11 @@ def test_increase_votes():
         # by comparing all fields we make sure only votes changed
         assert stored_doc == doc
 
+
 test_increase_votes()
 
-#--- 实验mongomock对insert, exception的支持 ---
 
-
+# --- 实验mongomock对insert, exception的支持 ---
 def grouper_list(l, n):
     """Evenly divide list into fixed-length piece, no filled value if chunk
     size smaller than fixed-length.
@@ -141,12 +140,12 @@ def test_smart_insert():
         assert 15 <= col.find().count() <= 20
 
     data = [{"_id": i} for i in range(1, 1 + 10000)]
+
     # Smart Insert
     insert_test_data()
 
     st = time.clock()
     smart_insert(col, data)
-    elapse1 = time.clock() - st
 
     assert col.find().count() == 10000  # after smart insert, we got 10000 doc
 
@@ -159,22 +158,21 @@ def test_smart_insert():
             col.insert(doc)
         except:
             pass
-    elapse2 = time.clock() - st
 
     # after regular insert, we got 10000 doc
     assert col.find().count() == 10000
 
-    assert elapse1 <= elapse2
 
 test_smart_insert()
 
-#--- 测试mongomock对aggregate操作的支持 ---
+
+# --- 测试mongomock对aggregate操作的支持 ---
 
 
-def test_distinct():
-    """测试mongomock是否支持aggregate操作。
+def test_group():
+    """测试mongomock是否支持group操作。
 
-    结论: 不支持。
+    结论: 支持。
     """
     col = mongomock.MongoClient().db.collection
 
@@ -192,6 +190,10 @@ def test_distinct():
         },
     ]
 
-    assert len(list(col.aggregate(pipeline))) == 0  # expect be 100
+    for doc in col.aggregate(pipeline):
+        print(doc)
+        # print(len(list(col.aggregate(pipeline))))
+        # assert len(list(col.aggregate(pipeline))) == 0  # expect be 100
 
-test_distinct()
+
+test_group()
